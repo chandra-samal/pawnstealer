@@ -14,9 +14,21 @@ enum {
     a1, b1, c1, d1, e1, f1, g1, h1
 };
 
+enum {
+    white, black
+};
+
 #define getBit(bitboard, position) ((bitboard&(1ULL << position)) ? 1 : 0)
 #define setBit(bitboard, position) bitboard |= (1ULL << position)
 #define eraseBit(bitboard, position) (getBit(bitboard, position) ? bitboard ^= (1ULL<<position) : 0)
+
+/* for out of border testing */
+
+// columns
+const U64 notA = 18374403900871474942ULL;
+const U64 notH = 9187201950435737471ULL;
+const U64 notAB = 18229723555195321596ULL;
+const U64 notGH = 4557430888798830399ULL;
 
 void printBitBoard(U64 bitboard){
     cout << '\n';
@@ -34,14 +46,40 @@ void printBitBoard(U64 bitboard){
     cout << "\n\n     Bitboard: " << bitboard << "\n\n";
 }
 
-int main(){
-    U64 bitboard = 0ULL;
-    setBit(bitboard, e2);
-    setBit(bitboard, a1);
-    setBit(bitboard, b1);
-    eraseBit(bitboard, a1);
+// ATTACKS
 
-    printBitBoard(bitboard);
+// FOR PAWNS
+U64 pawnAttacks[2][64];
+
+U64 maskPawnAttack(int side, int square){
+    U64 attacks = 0ULL; // attack bitboard
+    U64 pieceBitboard = 0ULL; // piece bitboard
+
+    setBit(pieceBitboard, square);
+
+    if (!side){
+        // for white
+        if ((pieceBitboard >> 7) & notA) attacks |= (pieceBitboard >> 7);
+        if ((pieceBitboard >> 9) & notH) attacks |= (pieceBitboard >> 9);
+    }
+    else {
+        // for black
+        if ((pieceBitboard << 7) & notH) attacks |= (pieceBitboard << 7);
+        if ((pieceBitboard << 9) & notA) attacks |= (pieceBitboard << 9);
+    }
+    return attacks;
+}
+
+void initializeAttacks(){
+    for (int i = 0; i<64; i++){
+        pawnAttacks[white][i] = maskPawnAttack(white, i);
+        pawnAttacks[black][i] = maskPawnAttack(black, i);
+    }
+}
+
+int main(){
+    initializeAttacks();
+    for (int i = 0; i<64; i++) printBitBoard(pawnAttacks[white][i]);
 
     return 0;
 }
