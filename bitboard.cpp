@@ -115,7 +115,39 @@ U64 maskKingAttacks(int square){
     return attacks;
 }
 
+// FOR BISHOP
+U64 bishopAttacks[64];
 
+U64 maskBishopAttacks(int square){
+    U64 attacks = 0ULL;
+
+    int targetRank = square/8;
+    int targetFile = square%8;
+ 
+    for (int i = targetRank+1,j = targetFile+1; i<7 && j<7; i++, j++) setBit(attacks, 8*i+j);
+    for (int i = targetRank-1,j = targetFile+1; i>0 && j<7; i--, j++) setBit(attacks, 8*i+j);
+    for (int i = targetRank+1,j = targetFile-1; i<7 && j>0; i++, j--) setBit(attacks, 8*i+j);
+    for (int i = targetRank-1,j = targetFile-1; i>0 && j>0; i--, j--) setBit(attacks, 8*i+j);
+
+    return attacks;
+}
+
+// FOR ROOKS
+U64 rookAttacks[64];
+
+U64 maskRookAttacks(int square){
+    U64 attacks = 0ULL;
+    int targetRank = square/8;
+    int targetFile = square%8;
+    for (int i = 1; i<7; i++){
+        if (i!=targetRank) setBit(attacks, 8*i + targetFile);
+        if (i!=targetFile) setBit(attacks, 8*targetRank + i);
+    }
+
+    return attacks;
+}
+
+// initialize all the attacks
 void initializeAttacks(){
     for (int i = 0; i<64; i++){
         // pawn attacks
@@ -127,12 +159,23 @@ void initializeAttacks(){
 
         // king attacks
         kingAttacks[i] = maskKingAttacks(i);
+
+        // bihsop attacks
+        bishopAttacks[i] = maskBishopAttacks(i);
+
+        // rook attacks
+        rookAttacks[i] = maskRookAttacks(i);
     }
 }
 
 int main(){
     initializeAttacks();
-    for(int i = 0; i<64; i++) printBitBoard(kingAttacks[i]);
+    printBitBoard(maskRookAttacks(a1));
 
     return 0;
 }
+
+
+/*
+    Relevant occupancy bits are the squares for a particular piece (bishop, or rook) that can block it's range
+*/
