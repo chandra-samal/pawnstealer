@@ -91,6 +91,31 @@ U64 maskKnightAttacks(int square){
     return attacks;
 }
 
+// FOR KING
+U64 kingAttacks[64];
+
+U64 maskKingAttacks(int square){
+    U64 attacks = 0ULL;
+
+    U64 pieceBitboard = 0ULL;
+    setBit(pieceBitboard, square);
+    // offsets = 1, 7, 8, 9
+    // we can reuse the pawn codes for offset 7 and 9
+    attacks |= maskPawnAttack(white, square);
+    attacks |= maskPawnAttack(black, square);
+
+    // for offset 1 
+    if((pieceBitboard >> 1) & notH) attacks |= (pieceBitboard >> 1);
+    if((pieceBitboard << 1) & notA) attacks |= (pieceBitboard << 1);
+
+    // for offset 8
+    attacks |= (pieceBitboard>>8);
+    attacks |= (pieceBitboard<<8);
+
+    return attacks;
+}
+
+
 void initializeAttacks(){
     for (int i = 0; i<64; i++){
         // pawn attacks
@@ -99,12 +124,15 @@ void initializeAttacks(){
 
         // knight attacks
         knightAttacks[i] = maskKnightAttacks(i);
+
+        // king attacks
+        kingAttacks[i] = maskKingAttacks(i);
     }
 }
 
 int main(){
     initializeAttacks();
-    for (int i = 0; i<64; i++) printBitBoard(knightAttacks[i]);
+    for(int i = 0; i<64; i++) printBitBoard(kingAttacks[i]);
 
     return 0;
 }
