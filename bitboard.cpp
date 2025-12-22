@@ -132,6 +132,33 @@ U64 maskBishopAttacks(int square){
     return attacks;
 }
 
+U64 generateBishopAttacks(int square, U64 block){
+    U64 attacks = 0ULL;
+
+    int targetRank = square/8;
+    int targetFile = square%8;
+ 
+    for (int i = targetRank+1,j = targetFile+1; i<8 && j<8; i++, j++) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank-1,j = targetFile+1; i>=0 && j<8; i--, j++) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank+1,j = targetFile-1; i<8 && j>=0; i++, j--) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank-1,j = targetFile-1; i>=0 && j>=0; i--, j--) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+
+    return attacks;
+}
+
+
 // FOR ROOKS
 U64 rookAttacks[64];
 
@@ -143,6 +170,42 @@ U64 maskRookAttacks(int square){
         if (i!=targetRank) setBit(attacks, 8*i + targetFile);
         if (i!=targetFile) setBit(attacks, 8*targetRank + i);
     }
+
+    return attacks;
+}
+
+U64 generateRookAttacks(int square, U64 block){
+    U64 attacks = 0ULL;
+    int targetRank = square/8;
+    int targetFile = square%8;
+    for (int i = targetRank+1,j = targetFile; i<8; i++) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank-1,j = targetFile; i>=0; i--) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank,j = targetFile-1; j>=0; j--) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+    for (int i = targetRank,j = targetFile+1; j<8; j++) {
+        setBit(attacks, 8*i+j);
+        if (1ULL << (8*i+j) & block) break;
+    }
+
+    return attacks;
+}
+
+// FOR QUEEN
+U64 queenAttacks[64];
+
+U64 maskQueenAttacks(int square){
+    U64 attacks = 0ULL;
+    
+    attacks |= maskBishopAttacks(square);
+    attacks |= maskRookAttacks(square);
 
     return attacks;
 }
@@ -170,7 +233,13 @@ void initializeAttacks(){
 
 int main(){
     initializeAttacks();
-    printBitBoard(maskRookAttacks(a1));
+    U64 occupancyBitboard = 0ULL;
+    setBit(occupancyBitboard, d7);
+    setBit(occupancyBitboard, g4);
+    setBit(occupancyBitboard, c4);
+    setBit(occupancyBitboard, f6);
+    printBitBoard(maskRookAttacks(b4));
+    
 
     return 0;
 }
