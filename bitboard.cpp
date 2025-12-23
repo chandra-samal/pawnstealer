@@ -51,8 +51,6 @@ int getLSBIndex(U64 bitboard){
 
 
 /* for out of border testing */
-
-// columns
 const U64 notA = 18374403900871474942ULL;
 const U64 notH = 9187201950435737471ULL;
 const U64 notAB = 18229723555195321596ULL;
@@ -146,6 +144,18 @@ U64 maskKingAttacks(int square){
 // FOR BISHOP
 U64 bishopAttacks[64];
 
+// relevant bits lookup table for each square
+const vector<int> bihsopRelevantBits = {
+    6, 5, 5, 5, 5, 5, 5, 6, 
+    5, 5, 5, 5, 5, 5, 5, 5, 
+    5, 5, 7, 7, 7, 7, 5, 5, 
+    5, 5, 7, 9, 9, 7, 5, 5, 
+    5, 5, 7, 9, 9, 7, 5, 5, 
+    5, 5, 7, 7, 7, 7, 5, 5, 
+    5, 5, 5, 5, 5, 5, 5, 5, 
+    6, 5, 5, 5, 5, 5, 5, 6, 
+};
+
 U64 maskBishopAttacks(int square){
     U64 attacks = 0ULL;
 
@@ -189,6 +199,18 @@ U64 generateBishopAttacks(int square, U64 block){
 
 // FOR ROOKS
 U64 rookAttacks[64];
+
+// relevant bits lookup table for each square
+const vector<int> rookRelevantBits = {
+    12, 11, 11, 11, 11, 11, 11, 12, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    11, 10, 10, 10, 10, 10, 10, 11, 
+    12, 11, 11, 11, 11, 11, 11, 12, 
+};
 
 U64 maskRookAttacks(int square){
     U64 attacks = 0ULL;
@@ -259,22 +281,37 @@ void initializeAttacks(){
     }
 }
 
+// Useful fucntion to generate all possible combination of occupancies
+U64 setOccupancy(int index, U64 attackMask){
+    /* 
+    Looping over the maximum index till 4096(can be used to generate permutations of combinations with max relevancy bit 12), 
+    we will have every combination generated for every possible piece as every piece except the queen have relevancy bits less than or equal to 12 only
+    */
+    int bitsInMask = countBits(attackMask);
+    
+    U64 occupancy = 0ULL;
+    // loops over every active bit of attackMask
+    for (int count = 0; count<bitsInMask; count++){
+        int square = getLSBIndex(attackMask);
+        eraseBit(attackMask, square);
+
+        if (index & (1 << count)) occupancy |= (1ULL << square);
+    }
+
+    return occupancy;
+}
+
 int main(){
     initializeAttacks();
-    U64 occupancyBitboard = 0ULL;
-    setBit(occupancyBitboard, d7);
-    setBit(occupancyBitboard, g4);
-    setBit(occupancyBitboard, c4);
-    setBit(occupancyBitboard, f6);
-    setBit(occupancyBitboard, f5);
+    for (int i = 0; i<8; i++){
+        for(int j = 0; j<8; j++){
+            int sq = 8*i + j;
+            cout << countBits(maskRookAttacks(sq)) << ", ";
+        }
+        cout << '\n';
+    }
 
-    printBitBoard(occupancyBitboard);
-    cout << "Count: " << countBits(occupancyBitboard) << " LSB Index: " << getLSBIndex(occupancyBitboard) << " and coordinate: " << squareToCoordinates[getLSBIndex(occupancyBitboard)] << '\n';
+    // printBitBoard(4096);
 
     return 0;
 }
-
-
-/*
-    Relevant occupancy bits are the squares for a particular piece (bishop, or rook) that can block it's range
-*/
