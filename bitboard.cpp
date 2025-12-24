@@ -301,15 +301,29 @@ U64 setOccupancy(int index, U64 attackMask){
     return occupancy;
 }
 
+// 32 bit pseudo random number generator
+unsigned int state = 1804289383;
+unsigned int getRandomNumber(){
+    unsigned int currentState = state;
+
+    currentState ^= currentState << 13;
+    currentState ^= currentState >> 17;
+    currentState ^= currentState << 5;
+
+    state = currentState;
+
+    return currentState;
+}
+
+
 int main(){
     initializeAttacks();
-    for (int i = 0; i<8; i++){
-        for(int j = 0; j<8; j++){
-            int sq = 8*i + j;
-            cout << countBits(maskRookAttacks(sq)) << ", ";
-        }
-        cout << '\n';
-    }
+    cout << getRandomNumber() << '\n';
+    cout << getRandomNumber() << '\n';
+    cout << getRandomNumber() << '\n';
+    cout << getRandomNumber() << '\n';
+    cout << getRandomNumber() << '\n';
+
 
     // printBitBoard(4096);
 
