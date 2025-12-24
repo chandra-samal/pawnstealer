@@ -315,15 +315,31 @@ unsigned int getRandomNumber(){
     return currentState;
 }
 
+// 64 bit pseudo random number generator
+U64 getRandomNumber64(){
+    U64 n1, n2, n3, n4;
+
+    n1 = (U64)getRandomNumber() & 0xFFFF; // keeps the least significant 16 bits
+    n2 = (U64)getRandomNumber() & 0xFFFF;
+    n3 = (U64)getRandomNumber() & 0xFFFF;
+    n4 = (U64)getRandomNumber() & 0xFFFF;
+
+    return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
+}
+
+// magic number generator
+U64 generateMagicNumber() {
+    return getRandomNumber64() & getRandomNumber64() & getRandomNumber64();
+    // This decreases the number of active bits quite noticibly.
+}
+
 
 int main(){
     initializeAttacks();
-    cout << getRandomNumber() << '\n';
-    cout << getRandomNumber() << '\n';
-    cout << getRandomNumber() << '\n';
-    cout << getRandomNumber() << '\n';
-    cout << getRandomNumber() << '\n';
+    // printBitBoard((U64)getRandomNumber() & 0xFFFF); // slices upper 16 bits
+    // printBitBoard((U64)getRandomNumber() & (U64)0xFFFF); 
 
+    printBitBoard(generateMagicNumber());
 
     // printBitBoard(4096);
 
